@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FamilySecure – Digital security literacy assistant for families. Check suspicious messages and test your security knowledge with an interactive quiz." id="meta-description" />
+  <title>FamilySecure – Family Digital Security Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+    </div>
+    <span class="nav-title">Family<span>Secure</span></span>
+  </div>
+  <div class="nav-actions">
+    <button class="lang-toggle" id="lang-toggle-btn" onclick="toggleLanguage()" aria-label="Switch language / Ganti bahasa">
+      <span id="lang-toggle-label">EN</span>
+    </button>
+    <div class="nav-user hidden" id="nav-user-area">
+      <div class="nav-score-pill">
+        <span class="star">⭐</span>
+        <span id="nav-score-value">0</span> <span data-i18n="nav.points">points</span>
+      </div>
+      <button class="btn-icon" id="logout-btn" onclick="logout()" data-i18n-title="nav.logoutTitle" title="Log out">🚪</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero-section">
+  <span class="hero-badge" data-i18n="hero.badge">🛡️ Family Digital Security</span>
+  <h1 data-i18n-html="hero.title">Protect Your Family from <em>Digital Fraud</em></h1>
+  <p data-i18n="hero.subtitle">Check suspicious messages or photos in seconds, and test your family's digital security awareness together.</p>
+  <div class="hero-cta">
+    <button class="btn btn-primary" id="hero-cta-btn">
+      <span data-i18n="hero.ctaPrimary">Get Started</span>
+      <span>→</span>
+    </button>
+    <button class="btn btn-secondary" onclick="document.getElementById('tips-section').scrollIntoView({behavior:'smooth'})" data-i18n="hero.ctaSecondary">
+      Security Tips
+    </button>
+  </div>
+</section>
+
+<!-- ONBOARDING / AUTH -->
+<section id="setup-section" class="hidden">
+  <div class="setup-card animate-in">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-register-btn" onclick="switchAuthTab('register')" data-i18n="auth.tabRegister">Create Account</button>
+      <button class="auth-tab" id="tab-login-btn" onclick="switchAuthTab('login')" data-i18n="auth.tabLogin">Log In</button>
+    </div>
+
+    <form id="register-form" autocomplete="on">
+      <h2 data-i18n="auth.registerTitle">Create an Account</h2>
+      <p data-i18n="auth.registerDesc">Your account stores your quiz progress, chat history, and photo check history on our server.</p>
+      <div class="input-group">
+        <label for="register-name" data-i18n="setup.inputLabel">Your Name</label>
+        <input type="text" id="register-name" data-i18n-placeholder="setup.inputPlaceholder" placeholder="e.g., Budi Santoso" autocomplete="name" maxlength="80" />
+      </div>
+      <div class="input-group">
+        <label for="register-email" data-i18n="auth.emailLabel">Email</label>
+        <input type="email" id="register-email" data-i18n-placeholder="auth.emailPlaceholder" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div class="input-group">
+        <label for="register-password" data-i18n="auth.passwordLabel">Password</label>
+        <div class="password-field">
+          <input type="password" id="register-password" data-i18n-placeholder="auth.passwordHint" placeholder="At least 8 characters" autocomplete="new-password" />
+          <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('register-password', this)" aria-label="Show password">👁️</button>
+        </div>
+        <small class="input-hint" data-i18n="auth.passwordSaveHint">Remember this email and password — you'll need them to log in again next time.</small>
+      </div>
+      <div class="setup-actions">
+        <button type="submit" class="btn btn-primary w-full" id="register-btn" data-i18n="auth.registerSubmit">Create Account →</button>
+      </div>
+    </form>
+
+    <form id="login-form" class="hidden" autocomplete="on">
+      <h2 data-i18n="auth.loginTitle">Welcome Back</h2>
+      <p data-i18n="auth.loginDesc">Log in to continue your learning progress.</p>
+      <div class="input-group">
+        <label for="login-email" data-i18n="auth.emailLabel">Email</label>
+        <input type="email" id="login-email" data-i18n-placeholder="auth.emailPlaceholder" placeholder="you@example.com" autocomplete="username" />
+      </div>
+      <div class="input-group">
+        <label for="login-password" data-i18n="auth.passwordLabel">Password</label>
+        <div class="password-field">
+          <input type="password" id="login-password" autocomplete="current-password" />
+          <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('login-password', this)" aria-label="Show password">👁️</button>
+        </div>
+      </div>
+      <div class="setup-actions">
+        <button type="submit" class="btn btn-primary w-full" id="login-btn" data-i18n="auth.loginSubmit">Log In →</button>
+      </div>
+    </form>
+    <p class="auth-help-note" data-i18n="auth.needHelpNote">Not sure what to do? Ask a family member to help you register the first time.</p>
+  </div>
+</section>
+
+<!-- MAIN APP -->
+<main id="app-section" class="hidden">
+
+  <!-- Module Tiles -->
+  <div id="home-view">
+    <div class="section-label" data-i18n="home.sectionLabel">Main Features</div>
+    <div class="module-grid">
+      <div class="module-card" id="card-chat" onclick="showPanel('chat-panel')">
+        <div class="module-icon">💬</div>
+        <div>
+          <h3 data-i18n="home.cardChatTitle">Ask & Check a Message</h3>
+          <p data-i18n="home.cardChatDesc">Describe a suspicious situation, upload a screenshot, or both in the same conversation — our AI assistant will help either way.</p>
+        </div>
+        <div class="module-arrow">→</div>
+      </div>
+      <div class="module-card amber" id="card-quiz" onclick="showPanel('quiz-panel')">
+        <div class="module-icon">🎓</div>
+        <div>
+          <h3 data-i18n="home.cardQuizTitle">Digital Security Quiz</h3>
+          <p data-i18n="home.cardQuizDesc">Test your knowledge with an interactive quiz. Earn points and badges for each level you complete.</p>
+        </div>
+        <div class="module-arrow">→</div>
+      </div>
+      <div class="module-card" id="card-score" onclick="showPanel('score-panel')">
+        <div class="module-icon">🏆</div>
+        <div>
+          <h3 data-i18n="home.cardScoreTitle">Score & Achievements</h3>
+          <p data-i18n="home.cardScoreDesc">Review your learning progress, earned badges, and quiz results by topic.</p>
+        </div>
+        <div class="module-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- Emergency strip -->
+    <div class="emergency-strip">
+      <div class="e-icon">🚨</div>
+      <div>
+        <h4 data-i18n="home.emergencyTitle">Already clicked a suspicious link or installed a file?</h4>
+        <p data-i18n-html="home.emergencyDesc"><strong>Contact your bank immediately</strong> to block your account. Emergency numbers are usually printed on your ATM card or mobile banking app.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz Panel -->
+  <div id="quiz-panel" class="hidden">
+    <!-- Topic Selection -->
+    <div id="quiz-topic-view" class="panel animate-in">
+      <div class="panel-header">
+        <button class="back-btn" onclick="showHome()" aria-label="Back">←</button>
+        <h2 data-i18n="quiz.topicHeader">🎓 Choose a Quiz Topic</h2>
+      </div>
+      <div class="panel-body">
+        <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.5rem;line-height:1.6;" data-i18n="quiz.topicIntro">
+          Choose a topic to study. Each topic has two levels — complete the Basic level first to unlock the Advanced level.
+        </p>
+        <div class="module-grid" id="topic-list"></div>
+      </div>
+    </div>
+
+    <!-- Level Selection -->
+    <div id="quiz-level-view" class="panel animate-in hidden">
+      <div class="panel-header">
+        <button class="back-btn" onclick="showView('quiz-topic-view','quiz-level-view')" aria-label="Back">←</button>
+        <h2 id="level-panel-title">Choose a Level</h2>
+      </div>
+      <div class="panel-body">
+        <div class="level-grid" id="level-grid"></div>
+      </div>
+    </div>
+
+    <!-- Quiz Q&A -->
+    <div id="quiz-qa-view" class="panel animate-in hidden">
+      <div class="panel-header">
+        <button class="back-btn" onclick="confirmQuitQuiz()" aria-label="Exit quiz">←</button>
+        <h2 id="qa-panel-title">Quiz</h2>
+      </div>
+      <div class="panel-body">
+        <div class="quiz-progress">
+          <div class="quiz-progress-text">
+            <span id="progress-text">Question 1 of 3</span>
+            <span id="score-text">0 correct</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="quiz-question" id="quiz-question-text">—</div>
+        <div class="quiz-options" id="quiz-options"></div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+        <div class="quiz-nav">
+          <button class="btn btn-primary hidden" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Result -->
+    <div id="quiz-result-view" class="panel animate-in hidden">
+      <div class="panel-body result-panel">
+        <div class="score-circle" id="score-circle">
+          <svg viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="50"/>
+            <circle class="fill" cx="60" cy="60" r="50" id="circle-fill"/>
+          </svg>
+          <div class="score-number" id="result-score-num">0%</div>
+          <div class="score-label" data-i18n="quiz.resultScoreLabel">Score</div>
+        </div>
+        <div class="result-title" id="result-title">—</div>
+        <div class="result-subtitle" id="result-subtitle">—</div>
+        <div class="badge-earned hidden" id="badge-earned-display">—</div>
+        <div class="result-actions">
+          <button class="btn btn-secondary" id="retry-btn" onclick="retryQuiz()">🔄 Try Again</button>
+          <button class="btn btn-primary" onclick="showPanel('quiz-panel')" data-i18n="quiz.chooseAnotherTopic">Choose Another Topic</button>
+          <button class="btn btn-secondary" onclick="showPanel('score-panel')" data-i18n="quiz.viewScore">View Score</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Panel -->
+  <div id="score-panel" class="hidden">
+    <div class="panel animate-in">
+      <div class="score-header">
+        <div class="score-header-icon">🏆</div>
+        <div class="score-header-info">
+          <h3 id="score-panel-name">—</h3>
+          <p data-i18n="score.learningProgress">Learning Progress</p>
+        </div>
+        <div class="score-total">
+          <div id="score-panel-total">0</div>
+          <small data-i18n="score.totalPoints">Total Points</small>
+        </div>
+      </div>
+      <div class="topic-progress-grid" id="topic-progress-grid"></div>
+      <div class="badges-section">
+        <h4 data-i18n="score.badgesEarned">Badges Earned</h4>
+        <div class="badges-list" id="badges-list"></div>
+      </div>
+      <div class="badges-section">
+        <h4 data-i18n="history.quizTitle">Quiz Attempt History</h4>
+        <div class="history-list" id="history-quiz-list"></div>
+      </div>
+      <div class="badges-section">
+        <h4 data-i18n="history.chatTitle">Conversation History</h4>
+        <div class="history-list" id="history-chat-list"></div>
+      </div>
+      <div style="padding:1rem 1.75rem;border-top:1.5px solid var(--sand-dark);">
+        <button class="btn btn-secondary btn-sm" onclick="showHome()" data-i18n="score.backToMenu">← Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Panel -->
+  <div id="chat-panel" class="hidden">
+    <div class="panel animate-in chat-panel-wrapper" id="chat-panel-wrapper">
+      <div class="chat-drop-overlay" id="chat-drop-overlay">
+        <div class="chat-drop-overlay-content">
+          <span class="chat-drop-icon">📸</span>
+          <p data-i18n="chat.dropHint">Drop your photo here</p>
+        </div>
+      </div>
+      <div class="panel-header">
+        <button class="back-btn" onclick="showHome()" aria-label="Back">←</button>
+        <div class="chat-header-info">
+          <h2 data-i18n="chat.header">💬 Ask the FamilySecure Assistant</h2>
+          <span class="chat-status" id="chat-status" data-i18n="chat.online">● Online</span>
+        </div>
+        <button class="btn-icon" id="clear-chat-btn" onclick="clearChat()" data-i18n-title="chat.clearTitle" title="Clear chat history">🗑️</button>
+      </div>
+
+      <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+        <div class="chat-bubble bot" id="chat-welcome">
+          <div class="bubble-avatar">🛡️</div>
+          <div class="bubble-content">
+            <p data-i18n="chat.welcome1">Hello! I'm the FamilySecure assistant.</p>
+            <p data-i18n="chat.welcome2">Describe a suspicious message, attach a screenshot, or both — I'll help explain whether it may be harmful.</p>
+            <div class="chat-suggestions">
+              <button class="suggestion-chip" data-i18n="chat.suggestion1" onclick="sendSuggestion(t('chat.suggestion1Query'))">Fake courier APK file?</button>
+              <button class="suggestion-chip" data-i18n="chat.suggestion2" onclick="sendSuggestion(t('chat.suggestion2Query'))">Suspicious bank link</button>
+              <button class="suggestion-chip" data-i18n="chat.suggestion3" onclick="sendSuggestion(t('chat.suggestion3Query'))">What is a romance scam?</button>
+              <button class="suggestion-chip" data-i18n="chat.suggestion4" onclick="sendSuggestion(t('chat.suggestion4Query'))">Friend asking for phone credit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-attachment-preview hidden" id="chat-attachment-preview">
+        <img id="chat-attachment-thumb" src="" alt="Attached photo preview" />
+        <span class="chat-attachment-name" id="chat-attachment-name"></span>
+        <button type="button" class="chat-attachment-remove" onclick="removeAttachment()" data-i18n-aria-label="chat.removeAttachmentAria" aria-label="Remove attachment">✕</button>
+      </div>
+      <div class="chat-input-area">
+        <input type="file" id="chat-file-input" accept="image/*" class="hidden" onchange="handleAttachmentSelected(this.files[0])" />
+        <button type="button" class="chat-attach-btn" onclick="document.getElementById('chat-file-input').click()" data-i18n-title="chat.attachPhotoTitle" title="Attach a photo" aria-label="Attach a photo">📎</button>
+        <textarea
+          id="chat-input"
+          class="chat-input"
+          data-i18n-placeholder="chat.inputPlaceholder"
+          placeholder="Type a message or describe a suspicious situation..."
+          rows="2"
+          maxlength="1000"
+          aria-label="Chat message"
+        ></textarea>
+        <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()" aria-label="Send message">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- TIPS -->
+<section id="tips-section" style="padding:0 clamp(1rem,4vw,2.5rem) 5rem;max-width:900px;margin:0 auto;">
+  <div class="section-label" data-i18n="tips.sectionLabel">Quick Tips</div>
+  <div class="tips-grid">
+    <div class="tip-card animate-in" data-delay="1">
+      <div class="tip-icon">📱</div>
+      <h4 data-i18n="tips.tip1Title">Never Install APK Files from Chat</h4>
+      <p data-i18n="tips.tip1Desc">Legitimate apps are only downloaded from Google Play Store or the App Store. An .apk file sent via WhatsApp is almost always malicious.</p>
+    </div>
+    <div class="tip-card animate-in" data-delay="2">
+      <div class="tip-icon">🔐</div>
+      <h4 data-i18n="tips.tip2Title">OTP Codes Are Strictly Confidential</h4>
+      <p data-i18n="tips.tip2Desc">Never share an OTP code with anyone — including someone claiming to be a bank officer, police officer, or government official.</p>
+    </div>
+    <div class="tip-card animate-in" data-delay="3">
+      <div class="tip-icon">🔗</div>
+      <h4 data-i18n="tips.tip3Title">Verify the Link Address</h4>
+      <p data-i18n="tips.tip3Desc">Before clicking, confirm the website address is correct. "mandiri-online.verify.xyz" is very different from "bankmandiri.co.id".</p>
+    </div>
+    <div class="tip-card animate-in">
+      <div class="tip-icon">⏰</div>
+      <h4 data-i18n="tips.tip4Title">Urgency Is a Warning Sign</h4>
+      <p data-i18n="tips.tip4Desc">Scammers always create a false sense of urgency. "Your account will be blocked in 30 minutes!" is an intimidation tactic, not a fact.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="text-align:center;padding:2rem;font-size:.82rem;color:var(--text-light);border-top:1.5px solid var(--sand-dark);">
+  <p data-i18n="footer.tagline">FamilySecure · Family Digital Security Literacy Assistant</p>
+</footer>
+
+<!-- SPINNER -->
+<div class="spinner-overlay" id="spinner-overlay" role="status" aria-live="polite">
+  <div class="spinner-box">
+    <div class="spinner"></div>
+    <p id="spinner-text">Analyzing...</p>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+<script src="app.js?v=4"></script>
+</body>
+</html>

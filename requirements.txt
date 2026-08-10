@@ -1,0 +1,28 @@
+# Core web framework
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+python-multipart
+
+# Authentication & database
+SQLAlchemy
+bcrypt
+PyJWT
+email-validator
+
+# Production database driver (only needed when DATABASE_URL points to PostgreSQL)
+psycopg2-binary
+
+# AI features (image analysis, chat, tool-use agent)
+google-genai
+
+# Used by bot.py (Telegram bot) — not required by the web app itself
+requests
+
+# Note: chromadb (semantic search for the scam-scenario RAG) was deliberately
+# left out of production dependencies — it pulls in heavy ML dependencies
+# (onnxruntime, etc.) that slow down and risk failing container builds on
+# free-tier hosting, for marginal benefit over the built-in keyword-matching
+# fallback in api/rag.py against a database of only ~12 scenarios. Install it
+# locally (`pip install chromadb`) if you want semantic search during local dev.

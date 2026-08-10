@@ -1,0 +1,28 @@
+# Secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Application data & logs
+user_data.json
+user_data.json.*
+backend.log
+logs/
+familysecure.db
+*.db
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db
+.claude/
+
+# Personal / non-project files
+*.docx
+*.pdf
+~$*
