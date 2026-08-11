@@ -957,7 +957,7 @@ function renderLevelProgress(label, lp) {
 
 async function refreshNavScore() {
   try {
-    const res  = await fetch(`${API}/api/dashboard`);
+    const res  = await apiFetch(`${API}/api/dashboard`);
     const data = await res.json();
     document.getElementById('nav-score-value').textContent = data.user_record.total_score;
   } catch (e) { /* silent */ }
@@ -1148,7 +1148,7 @@ async function sendChat() {
     formData.append('message', message);
     if (attachment) formData.append('file', attachment);
 
-    const res  = await fetch(`${API}/api/chat`, { method: 'POST', body: formData });
+    const res  = await apiFetch(`${API}/api/chat`, { method: 'POST', body: formData });
     const data = await res.json();
 
     removeTyping();
@@ -1210,7 +1210,7 @@ function sendSuggestion(text) {
 async function clearChat() {
   if (!state.user) return;
   try {
-    await fetch(`${API}/api/chat/history`, { method: 'DELETE' });
+    await apiFetch(`${API}/api/chat/history`, { method: 'DELETE' });
   } catch (e) { /* ignore */ }
 
   const container = document.getElementById('chat-messages');
