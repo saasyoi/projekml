@@ -102,7 +102,8 @@ const I18N = {
       nextQuestion: 'Next Question →',
       finishQuiz: 'Finish & See Result ✓',
       savingResult: 'Saving result...',
-      saveResultFailed: 'Failed to save result',
+      saveResultFailed: 'Failed to save result.',
+      saveResultRetryHint: "Your answers are still saved — tap \"Finish & See Result\" again to retry.",
       resultScoreLabel: 'Score',
       passedTitle: '🎉 Congratulations, You Passed!',
       passedSubtitle: (pct) => `Your score of ${pct}% exceeds the passing threshold (80%). Well done!`,
@@ -252,7 +253,8 @@ const I18N = {
       nextQuestion: 'Soal Berikutnya →',
       finishQuiz: 'Selesai & Lihat Hasil ✓',
       savingResult: 'Menyimpan hasil...',
-      saveResultFailed: 'Gagal menyimpan hasil',
+      saveResultFailed: 'Gagal menyimpan hasil.',
+      saveResultRetryHint: 'Jawaban Anda masih tersimpan — coba tekan "Selesai & Lihat Hasil" sekali lagi.',
       resultScoreLabel: 'Nilai',
       passedTitle: '🎉 Selamat, Anda Lulus!',
       passedSubtitle: (pct) => `Nilai ${pct}% telah melampaui batas kelulusan (80%). Kerja bagus!`,
@@ -728,6 +730,7 @@ async function submitAnswer(letter) {
       }),
     });
     const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Request failed');
 
     const selectedBtn = document.getElementById(`opt-${letter}`);
     const correctBtn  = document.getElementById(`opt-${data.correct_letter}`);
@@ -754,6 +757,7 @@ async function submitAnswer(letter) {
   } catch (err) {
     toast(t('quiz.answerCheckFailed'), 'error');
     state.answered = false;
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = false);
   } finally {
     hideSpinner();
   }
@@ -771,24 +775,41 @@ async function nextQuestion() {
 
 async function finishQuiz() {
   showSpinner(t('quiz.savingResult'));
-  try {
+
+  const payload = {
+    topic:         state.currentTopic,
+    level:         state.currentLevel,
+    correct_count: state.correctCount,
+    total:         state.questions.length,
+  };
+
+  const attemptSave = async () => {
     const res  = await fetch(`${API}/api/quiz/finish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        topic:         state.currentTopic,
-        level:         state.currentLevel,
-        correct_count: state.correctCount,
-        total:         state.questions.length,
-      }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Request failed');
+    return data;
+  };
 
+  try {
+    let data;
+    try {
+      data = await attemptSave();
+    } catch (firstErr) {
+      // Percobaan pertama gagal — coba sekali lagi setelah jeda singkat, karena
+      // penyebab paling umum adalah server baru bangun dari idle (cold start),
+      // bukan kegagalan yang permanen. state.correctCount dkk masih utuh di memori.
+      await new Promise(r => setTimeout(r, 2500));
+      data = await attemptSave();
+    }
     showView('quiz-result-view', null);
     renderResult(data);
     refreshNavScore();
   } catch (err) {
-    toast(t('quiz.saveResultFailed'), 'error');
+    toast(t('quiz.saveResultFailed') + ' ' + t('quiz.saveResultRetryHint'), 'error');
   } finally {
     hideSpinner();
   }
