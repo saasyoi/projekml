@@ -602,7 +602,7 @@ async function buildTopicList() {
     const list   = document.getElementById('topic-list');
     list.innerHTML = '';
 
-    const iconMap = { apk: '📦', link: '🔗' };
+    const iconMap = { apk: '📦', link: '🔗', sosial: '👥' };
 
     topics.forEach(t_ => {
       const card = document.createElement('div');

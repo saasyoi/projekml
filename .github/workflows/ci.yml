@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+
+      - name: Python compile check
+        run: python -m py_compile main.py api/*.py
+
+      - name: Import check
+        run: python -c "import main"
+
+      - name: JS syntax check
+        run: node --check frontend/app.js
+
+      - name: HTML tag balance check
+        run: |
+          python - <<'EOF'
+          from html.parser import HTMLParser
+          VOID = {"meta", "link", "input", "img", "br", "hr"}
+          stack, errors = [], []
+
+          class P(HTMLParser):
+              def handle_starttag(self, tag, attrs):
+                  if tag not in VOID:
+                      stack.append(tag)
+              def handle_endtag(self, tag):
+                  if tag in VOID:
+                      return
+                  if not stack or stack[-1] != tag:
+                      errors.append(f"mismatch: {stack[-1] if stack else None} vs {tag}")
+                  else:
+                      stack.pop()
+
+          with open("frontend/index.html", encoding="utf-8") as f:
+              P().feed(f.read())
+
+          if stack or errors:
+              print("Unclosed:", stack, "Errors:", errors)
+              raise SystemExit(1)
+          print("HTML balanced")
+          EOF
+
+      - name: Boot smoke test
+        run: |
+          nohup uvicorn main:app --host 127.0.0.1 --port 8000 > server.log 2>&1 &
+          for i in $(seq 1 15); do
+            if curl -sf http://127.0.0.1:8000/api/topics > /dev/null; then
+              echo "Server responded OK"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not respond in time"
+          cat server.log
+          exit 1

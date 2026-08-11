@@ -132,9 +132,9 @@ def rekomendasikan_kuis(topik: str) -> dict:
     """Mengambil info kuis edukasi yang tersedia untuk kategori modus penipuan tertentu.
 
     Args:
-        topik: Kunci kategori topik. Gunakan "apk" untuk modus file/APK berbahaya, atau
-            "link" untuk modus link palsu/petugas palsu. Kategori lain (mis. "sosial")
-            belum memiliki kuis, jangan dipanggil untuk topik tersebut.
+        topik: Kunci kategori topik. Gunakan "apk" untuk modus file/APK berbahaya,
+            "link" untuk modus link palsu/petugas palsu, atau "sosial" untuk modus
+            manipulasi sosial (mengaku keluarga, love scam, akun dibajak, investasi bodong).
 
     Returns:
         Dictionary berisi "ditemukan": True beserta kunci topik dan judul kuis jika topik

@@ -85,6 +85,49 @@ QUIZ_BANK = {
             },
         ],
     },
+    "sosial": {
+        "title": "Modus Sosial / Manipulasi Emosi",
+        "dasar": [
+            {
+                "question": "Nomor tak dikenal chat mengaku anak/cucu, bilang HP rusak dan minta transfer dari nomor baru ini. Tindakan paling aman?",
+                "options": {"A": "Langsung transfer karena kasihan", "B": "Hubungi dulu nomor lama anak/cucu yang sudah tersimpan", "C": "Balas minta foto KTP", "D": "Blokir tanpa cek apa pun"},
+                "correct": "B",
+                "explanation": "Benar, verifikasi lewat nomor lama sebelum bertindak — penipu memanfaatkan kepanikan keluarga.",
+            },
+            {
+                "question": "Kenalan online yang belum pernah bertemu langsung mulai minta dikirimi uang untuk 'biaya darurat'. Ini ciri modus apa?",
+                "options": {"A": "Bantuan sosial resmi", "B": "Penipuan kenalan online (love scam)", "C": "Program pemerintah", "D": "Hadiah dari bank"},
+                "correct": "B",
+                "explanation": "Tepat, kenalan online yang cepat minta uang tanpa pernah bertemu adalah ciri khas love scam.",
+            },
+            {
+                "question": "Teman di WhatsApp tiba-tiba minta pulsa dengan gaya bicara yang beda dari biasanya. Kemungkinan besar?",
+                "options": {"A": "Teman sedang buru-buru", "B": "Akun WhatsApp teman sudah dibajak orang lain", "C": "Teman ganti HP baru", "D": "Ini hal biasa"},
+                "correct": "B",
+                "explanation": "Benar, perubahan gaya bicara plus minta uang mendadak adalah tanda akun sudah diambil alih.",
+            },
+        ],
+        "lanjutan": [
+            {
+                "question": "Tawaran investasi menjanjikan 'profit 30% per bulan, pasti untung tanpa risiko'. Ciri paling mencurigakan?",
+                "options": {"A": "Ada kantor fisik", "B": "Untung besar dijanjikan pasti tanpa risiko", "C": "Terdaftar di OJK", "D": "Penjelasan produk jelas"},
+                "correct": "B",
+                "explanation": "Tepat, investasi asli selalu punya risiko — janji untung besar dan pasti adalah ciri skema Ponzi.",
+            },
+            {
+                "question": "Kenalan online mengaku WNA yang sudah lama chat mesra, lalu minta bantuan 'biaya bea cukai' untuk hadiah yang katanya dikirim. Tindakan tepat?",
+                "options": {"A": "Bayar karena sudah terlanjur janji", "B": "Jangan kirim uang, ceritakan dulu ke keluarga/teman dekat", "C": "Minta hadiahnya dibatalkan saja", "D": "Blokir tanpa pikir panjang"},
+                "correct": "B",
+                "explanation": "Benar, jangan pernah kirim uang ke kenalan online — ceritakan ke orang terpercaya sebelum bertindak.",
+            },
+            {
+                "question": "Sudah terlanjur transfer ke akun yang ternyata penipu. Langkah pertama paling tepat?",
+                "options": {"A": "Diam saja karena sudah terjadi", "B": "Segera hubungi bank untuk melaporkan & upayakan blokir transaksi", "C": "Tunggu beberapa minggu dulu", "D": "Hapus riwayat chat"},
+                "correct": "B",
+                "explanation": "Tepat, semakin cepat lapor ke bank, semakin besar peluang transaksi bisa diblokir atau dilacak.",
+            },
+        ],
+    },
 }
 
 BADGE_MAP = {
@@ -92,4 +135,6 @@ BADGE_MAP = {
     ("apk", "lanjutan"): "🛡️ Pelindung Chat Keluarga (APK)",
     ("link", "dasar"): "🛡️ Pemula Waspada Link Palsu",
     ("link", "lanjutan"): "🛡️ Pelindung Chat Keluarga (Link)",
+    ("sosial", "dasar"): "🛡️ Pemula Waspada Modus Sosial",
+    ("sosial", "lanjutan"): "🛡️ Pelindung Chat Keluarga (Sosial)",
 }
