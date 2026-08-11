@@ -65,7 +65,13 @@ def set_session_cookie(response: Response, user_id: int) -> None:
 
 
 def clear_session_cookie(response: Response) -> None:
-    response.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
+    response.delete_cookie(
+        key=SESSION_COOKIE_NAME,
+        path="/",
+        secure=COOKIE_SECURE,
+        httponly=True,
+        samesite="lax"
+    )
 
 
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:

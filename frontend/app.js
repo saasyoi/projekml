@@ -15,6 +15,32 @@ const state = {
   answered: false,
 };
 
+function apiFetch(url, options = {}) {
+  const init = {
+   ...options,
+   credentials: 'include',
+  };
+  return fetch(url, init);
+}
+
+function clearAccountUiState() {
+  state.chatHistoryLoaded = false;
+  state.pendingAttachment = null;
+  state.currentTopic = null;
+  state.currentLevel = null;
+  state.questions = [];
+  state.currentIndex = 0;
+  state.correctCount = 0;
+  state.answered = false;
+
+  const attachments = document.getElementById('chat-attachment-preview');
+  if (attachments) attachments.classList.add('hidden');
+  const input = document.getElementById('chat-file-input');
+  if (input) input.value = '';
+  const chatMessages = document.getElementById('chat-messages');
+  if (chatMessages) chatMessages.innerHTML = '';
+}
+
 // I18N
 const I18N = {
   en: {
@@ -395,7 +421,7 @@ function applyLanguage(lang) {
 // AUTH
 async function checkSession() {
   try {
-    const res = await fetch(`${API}/api/auth/me`);
+    const res = await apiFetch(`${API}/api/auth/me`);
     if (res.ok) {
       state.user = await res.json();
       enterApp();
@@ -429,7 +455,7 @@ async function handleRegister() {
   if (password.length < 8) { toast(t('auth.passwordTooShort'), 'warning'); return; }
 
   try {
-    const res = await fetch(`${API}/api/auth/register`, {
+    const res = await apiFetch(`${API}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
@@ -437,6 +463,7 @@ async function handleRegister() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || t('auth.registerFailed'));
 
+    clearAccountUiState();
     state.user = data;
     document.getElementById('setup-section').classList.add('hidden');
     enterApp();
@@ -453,7 +480,7 @@ async function handleLogin() {
   if (!password) { toast(t('auth.loginFailed'), 'warning'); return; }
 
   try {
-    const res = await fetch(`${API}/api/auth/login`, {
+    const res = await apiFetch(`${API}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -461,6 +488,7 @@ async function handleLogin() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || t('auth.loginFailed'));
 
+    clearAccountUiState();
     state.user = data;
     document.getElementById('setup-section').classList.add('hidden');
     enterApp();
@@ -471,11 +499,11 @@ async function handleLogin() {
 
 async function logout() {
   try {
-    await fetch(`${API}/api/auth/logout`, { method: 'POST' });
+    await apiFetch(`${API}/api/auth/logout`, { method: 'POST' });
   } catch (e) { /* ignore */ }
 
   state.user = null;
-  state.chatHistoryLoaded = false;
+  clearAccountUiState();
   document.getElementById('app-section').classList.add('hidden');
   document.getElementById('nav-user-area').classList.add('hidden');
   document.getElementById('setup-section').classList.add('hidden');
@@ -599,7 +627,7 @@ function renderContactInfoHtml(contact) {
 // QUIZ — TOPIC & LEVEL SELECTION
 async function buildTopicList() {
   try {
-    const res    = await fetch(`${API}/api/topics`);
+    const res    = await apiFetch(`${API}/api/topics`);
     const topics = await res.json();
     const list   = document.getElementById('topic-list');
     list.innerHTML = '';
@@ -631,7 +659,7 @@ async function selectTopic(topicKey, topicTitle) {
   showSpinner(t('quiz.loadingProgress'));
   let userRecord = null;
   try {
-    const res  = await fetch(`${API}/api/dashboard`);
+    const res  = await apiFetch(`${API}/api/dashboard`);
     const data = await res.json();
     userRecord = data.user_record;
   } catch (e) { /* ignore */ } finally { hideSpinner(); }
@@ -659,7 +687,7 @@ async function selectTopic(topicKey, topicTitle) {
 async function startQuiz(topic, level) {
   showSpinner(t('quiz.loadingQuestions'));
   try {
-    const res  = await fetch(`${API}/api/quiz/${topic}/${level}`);
+    const res  = await apiFetch(`${API}/api/quiz/${topic}/${level}`);
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail);
 
@@ -719,7 +747,7 @@ async function submitAnswer(letter) {
 
   showSpinner(t('quiz.checkingAnswer'));
   try {
-    const res  = await fetch(`${API}/api/quiz/answer`, {
+    const res  = await apiFetch(`${API}/api/quiz/answer`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -784,7 +812,7 @@ async function finishQuiz() {
   };
 
   const attemptSave = async () => {
-    const res  = await fetch(`${API}/api/quiz/finish`, {
+    const res  = await apiFetch(`${API}/api/quiz/finish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -867,7 +895,7 @@ function confirmQuitQuiz() {
 async function loadScorePanel() {
   showSpinner(t('score.loadingScore'));
   try {
-    const res  = await fetch(`${API}/api/dashboard`);
+    const res  = await apiFetch(`${API}/api/dashboard`);
     const data = await res.json();
     renderScorePanel(data);
     await loadHistoryPanels();
@@ -947,8 +975,8 @@ function formatDateTime(iso) {
 async function loadHistoryPanels() {
   try {
     const [quizRes, chatRes] = await Promise.all([
-      fetch(`${API}/api/history/quiz`),
-      fetch(`${API}/api/history/chat`),
+      apiFetch(`${API}/api/history/quiz`),
+      apiFetch(`${API}/api/history/chat`),
     ]);
     const [quizData, chatData] = await Promise.all([quizRes.json(), chatRes.json()]);
     renderQuizHistory(quizData);
@@ -996,7 +1024,7 @@ async function loadChatHistoryIntoPanel() {
   if (state.chatHistoryLoaded) return;
   state.chatHistoryLoaded = true;
   try {
-    const res = await fetch(`${API}/api/history/chat`);
+    const res = await apiFetch(`${API}/api/history/chat`);
     const data = await res.json();
     data.forEach(m => appendBubble(m.role === 'user' ? 'user' : 'bot', m.content, m.has_image ? m.status : null));
   } catch (e) { /* ignore */ }
