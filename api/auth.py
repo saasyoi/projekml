@@ -65,12 +65,18 @@ def set_session_cookie(response: Response, user_id: int) -> None:
 
 
 def clear_session_cookie(response: Response) -> None:
-    response.delete_cookie(
+    # Use set_cookie with max_age=0 instead of delete_cookie — more reliable
+    # because it mirrors exactly the same attributes used when the cookie was set,
+    # so the browser is guaranteed to recognise and remove it.
+    response.set_cookie(
         key=SESSION_COOKIE_NAME,
-        path="/",
-        secure=COOKIE_SECURE,
+        value="",
         httponly=True,
-        samesite="lax"
+        secure=COOKIE_SECURE,
+        samesite="lax",
+        max_age=0,
+        expires=0,
+        path="/",
     )
 
 
