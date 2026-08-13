@@ -303,4 +303,4 @@ def query_rag(text: str, top_k: int = 1) -> Optional[dict]:
                      if any(w in text_lower for w in flag.lower().split()))
         if score > best_score:
             best_score, best_match = score, item
-    return best_match if best_score > 0 else None
+    return best_match if best_score >= 3 else None
