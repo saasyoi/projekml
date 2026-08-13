@@ -21,13 +21,19 @@ jobs:
           node-version: "20"
 
       - name: Install backend dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
 
       - name: Python compile check
         run: python -m py_compile main.py api/*.py
 
       - name: Import check
         run: python -c "import main"
+
+      - name: Run pytest
+        env:
+          SECRET_KEY: ci-test-secret-key-not-for-production
+          COOKIE_SECURE: "false"
+        run: pytest tests/ -v
 
       - name: JS syntax check
         run: node --check frontend/app.js
