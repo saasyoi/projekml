@@ -1,24 +1,24 @@
 # Core web framework
-fastapi
-uvicorn[standard]
-pydantic
-python-dotenv
-python-multipart
+fastapi==0.139.0
+uvicorn[standard]==0.50.2
+pydantic==2.13.4
+python-dotenv==1.2.2
+python-multipart==0.0.32
 
 # Authentication & database
-SQLAlchemy
-bcrypt
-PyJWT
-email-validator
+SQLAlchemy==2.0.51
+bcrypt==5.0.0
+PyJWT==2.13.0
+email-validator==2.3.0
 
 # Production database driver (only needed when DATABASE_URL points to PostgreSQL)
-psycopg2-binary
+psycopg2-binary==2.9.12
 
 # AI features (image analysis, chat, tool-use agent)
-google-genai
+google-genai==2.10.0
 
 # Used by bot.py (Telegram bot) — not required by the web app itself
-requests
+requests==2.34.2
 
 # Note: chromadb (semantic search for the scam-scenario RAG) was deliberately
 # left out of production dependencies — it pulls in heavy ML dependencies
